@@ -41,9 +41,12 @@ parser.add_argument('-device', default='cuda', type=str)
 parser.add_argument('-epochs', default=20, type=int)
 parser.add_argument('-debug_batch_count', default=10, type=int) # 0 = release version
 
-parser.add_argument('-loss_huber_delta', default=1, type=float)
+parser.add_argument('-embedding_size', default=32, type=int)
 
-parser.add_argument('-test_rollout_steps', default=16, type=int)
+parser.add_argument('-gamma', default=30.0, type=float)
+parser.add_argument('-C_0', default=0.0, type=float)
+parser.add_argument('-C_n', default=5.0, type=float)
+parser.add_argument('-C_interval', default=1000, type=int)
 
 args, args_other = parser.parse_known_args()
 
@@ -130,21 +133,34 @@ for epoch in range(1, args.epochs+1):
             torch.set_grad_enabled(False)
 
         count_batches = 0
-        for x, x_noisy, y in dataloader:
+        for x, x_noisy, _ in dataloader:
 
-            plt.imshow(np.transpose(make_grid(x).numpy(), (1, 2, 0)))
-            plt.show()
-            plt.imshow(np.transpose(make_grid(x_noisy).numpy(), (1, 2, 0)))
-            plt.show()
+            # plt.subplot(2, 1, 1)
+            # plt.imshow(np.transpose(make_grid(x).numpy(), (1, 2, 0)))
+            # plt.subplot(2, 1, 2)
+            # plt.imshow(np.transpose(make_grid(x_noisy).numpy(), (1, 2, 0)))
+            # plt.show()
 
             count_batches += 1
             if args.debug_batch_count != 0 and count_batches > args.debug_batch_count: # for debugging
                 break
 
-            #TODO
+            z_mu, z_sigma, y_prim = model.forward(x_noisy)
+
+            loss_rec = -torch.mean(x * torch.log(y_prim))
+
+            C = min(args.C_n, (args.C_n - args.C_0) * (count_batches / args.C_interval) + args.C_0)
+
+            kl = z_mu**2 + z_sigma**2 - 1.0 - torch.log(z_sigma**2)
+            kl_means = torch.mean(kl, dim=0) # (32, )
+            loss_kl = args.gamma * torch.abs(C - torch.sum(kl_means))
+
+            loss = loss_rec + loss_kl
+
+            metrics_list[f'{mode}_loss'].append(loss.cpu().item())
 
             if mode == 'train':
-                #loss.backward()
+                loss.backward()
                 optimizer.step()
 
     for key, value in metrics_list.items():

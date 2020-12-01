@@ -21,9 +21,9 @@ class DataSet(torch.utils.data.Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        x = torch.unsqueeze(self.data.data[idx].t(), dim=0) / 255.0
+        x = torch.unsqueeze(self.data.data[idx].t(), dim=0) / 255.0 #0..1 0.5
 
-        noise = torch.rand(x.size())
+        noise = torch.rand(x.size()) # 0..1 , torch.randn => gaussian mean=0, std=1
         x_noisy = torch.where(noise < 0.2, torch.zeros_like(x), x)
 
         y = self.data.targets[idx]
