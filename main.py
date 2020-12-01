@@ -39,7 +39,7 @@ parser.add_argument('-huber_loss_delta', default=1.0, type=float)
 parser.add_argument('-device', default='cuda', type=str)
 
 parser.add_argument('-epochs', default=20, type=int)
-parser.add_argument('-debug_batch_count', default=10, type=int) # 0 = release version
+parser.add_argument('-debug_batch_count', default=0, type=int) # 0 = release version
 
 parser.add_argument('-embedding_size', default=32, type=int)
 
