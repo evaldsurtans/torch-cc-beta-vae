@@ -54,6 +54,8 @@ path_sequence = f'./results/{args.sequence_name}'
 args.run_name += ('-' + datetime.utcnow().strftime(f'%y-%m-%d--%H-%M-%S'))
 path_run = f'./results/{args.sequence_name}/{args.run_name}'
 FileUtils.createDir(path_run)
+path_artifacts = f'./artifacts/{args.sequence_name}/{args.run_name}'
+FileUtils.createDir(path_artifacts)
 FileUtils.writeJSON(f'{path_run}/args.json', args.__dict__)
 
 summary_writer = tensorboard_utils.CustomSummaryWriter(
@@ -77,6 +79,7 @@ Model = getattr(__import__('modules_core.' + args.model, fromlist=['Model']), 'M
 DataSet = getattr(__import__('modules_core.' + args.dataset, fromlist=['DataSet']), 'DataSet')
 
 logging.info(f'path_run: {path_run}')
+logging.info(json.dumps(args.__dict__, indent=4))
 
 if not torch.cuda.is_available():
     args.device = 'cpu'
@@ -145,9 +148,9 @@ for epoch in range(1, args.epochs+1):
             if args.debug_batch_count != 0 and count_batches > args.debug_batch_count: # for debugging
                 break
 
-            z_mu, z_sigma, y_prim = model.forward(x_noisy)
+            z_mu, z_sigma, y_prim = model.forward(x_noisy.to(args.device))
 
-            loss_rec = -torch.mean(x * torch.log(y_prim))
+            loss_rec = torch.mean((x.to(args.device) - y_prim)**2)
 
             C = min(args.C_n, (args.C_n - args.C_0) * (count_batches / args.C_interval) + args.C_0)
 
@@ -172,8 +175,8 @@ for epoch in range(1, args.epochs+1):
             if key == key_best:
                 direction = metrics_best[f'{key_best}_dir']
                 if metrics_best[key_best] * direction < value * direction:
-                    torch.save(model.state_dict(), f'{path_run}/best-{key_best}-{args.run_name}.pt')
-                    with open(f'{path_run}/best-{key_best}-{args.run_name}.json', 'w') as fp:
+                    torch.save(model.state_dict(), f'{path_artifacts}/best-{key_best}-{args.run_name}.pt')
+                    with open(f'{path_artifacts}/best-{key_best}-{args.run_name}.json', 'w') as fp:
                         json.dump(args.__dict__, fp, indent=4)
                     metrics_best[key_best] = value
 
