@@ -46,7 +46,7 @@ parser.add_argument('-embedding_size', default=32, type=int)
 parser.add_argument('-gamma', default=30.0, type=float)
 parser.add_argument('-C_0', default=0.0, type=float)
 parser.add_argument('-C_n', default=5.0, type=float)
-parser.add_argument('-C_interval', default=1000, type=int)
+parser.add_argument('-C_interval', default=10000, type=int)
 
 args, args_other = parser.parse_known_args()
 
@@ -144,7 +144,8 @@ for epoch in range(1, args.epochs+1):
             # plt.imshow(np.transpose(make_grid(x_noisy).numpy(), (1, 2, 0)))
             # plt.show()
 
-            count_batches += 1
+            if mode == 'train':
+                count_batches += 1
             if args.debug_batch_count != 0 and count_batches > args.debug_batch_count: # for debugging
                 break
 
