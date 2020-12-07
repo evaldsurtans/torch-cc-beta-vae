@@ -112,7 +112,10 @@ if args.optimizer == 'radam':
         weight_decay=0,
     )
 
-csv_records_run = []
+def dict_list_append(dict, key, value):
+    if key not in dict:
+        dict[key] = []
+    dict[key].append(value)
 
 metrics_best = {
     'test_loss': float('Inf'),
@@ -124,10 +127,8 @@ for epoch in range(1, args.epochs+1):
     logging.info(f'epoch: {epoch}')
 
     metric_mean = {}
+    metrics_list = {}
     for mode, dataloader in dataloaders.items():
-        metrics_list = {
-            f'{mode}_loss': []
-        }
 
         if mode == 'train':
             model = model.train()
@@ -155,13 +156,22 @@ for epoch in range(1, args.epochs+1):
 
             C = min(args.C_n, (args.C_n - args.C_0) * (count_batches / args.C_interval) + args.C_0)
 
-            kl = z_mu**2 + z_sigma**2 - 1.0 - torch.log(z_sigma**2)
+            kl = z_mu**2 + z_sigma**2 - 1.0 - torch.log(z_sigma**2 + 1e-8)
             kl_means = torch.mean(kl, dim=0) # (32, )
             loss_kl = args.gamma * torch.abs(C - torch.sum(kl_means))
 
             loss = loss_rec + loss_kl
 
-            metrics_list[f'{mode}_loss'].append(loss.cpu().item())
+            loss_scalar = loss.cpu().item()
+            loss_rec_scalar = loss_rec.cpu().item()
+            loss_kl_scalar = loss_kl.cpu().item()
+            if np.isnan(loss_scalar) or np.isinf(loss_scalar):
+                logging.error(f'loss_scalar: {loss_scalar} loss_rec_scalar: {loss_rec_scalar} loss_kl_scalar: {loss_kl_scalar}')
+                exit()
+
+            dict_list_append(metrics_list, f'{mode}_loss_rec', loss_rec_scalar)
+            dict_list_append(metrics_list, f'{mode}_loss_kl', loss_kl_scalar)
+            dict_list_append(metrics_list, f'{mode}_loss', loss_scalar)
 
             if mode == 'train':
                 loss.backward()
