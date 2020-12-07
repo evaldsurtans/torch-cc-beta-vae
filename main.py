@@ -119,6 +119,7 @@ metrics_best = {
     'test_loss_dir': -1
 }
 
+count_batches = 0
 for epoch in range(1, args.epochs+1):
     logging.info(f'epoch: {epoch}')
 
@@ -135,7 +136,6 @@ for epoch in range(1, args.epochs+1):
             model = model.eval()
             torch.set_grad_enabled(False)
 
-        count_batches = 0
         for x, x_noisy, _ in dataloader:
 
             # plt.subplot(2, 1, 1)
