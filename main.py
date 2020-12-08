@@ -190,6 +190,7 @@ for epoch in range(1, args.epochs+1):
                     with open(f'{path_artifacts}/best-{key_best}-{args.run_name}.json', 'w') as fp:
                         json.dump(args.__dict__, fp, indent=4)
                     metrics_best[key_best] = value
+                metric_mean[key_best] = metrics_best[key_best]
 
     summary_writer.add_hparams(
         hparam_dict=args.__dict__,
