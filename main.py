@@ -39,7 +39,7 @@ parser.add_argument('-huber_loss_delta', default=1.0, type=float)
 parser.add_argument('-device', default='cuda', type=str)
 
 parser.add_argument('-epochs', default=20, type=int)
-parser.add_argument('-debug_batch_count', default=0, type=int) # 0 = release version
+parser.add_argument('-debug_batch_count', default=3, type=int) # 0 = release version
 
 parser.add_argument('-embedding_size', default=32, type=int)
 
@@ -137,6 +137,10 @@ for epoch in range(1, args.epochs+1):
             model = model.eval()
             torch.set_grad_enabled(False)
 
+        if args.debug_batch_count != 0:
+            count_batches = 0
+
+        z_hist = []
         for x, x_noisy, _ in dataloader:
 
             # plt.subplot(2, 1, 1)
@@ -150,7 +154,7 @@ for epoch in range(1, args.epochs+1):
             if args.debug_batch_count != 0 and count_batches > args.debug_batch_count: # for debugging
                 break
 
-            z_mu, z_sigma, y_prim = model.forward(x_noisy.to(args.device))
+            z, z_mu, z_sigma, y_prim = model.forward(x_noisy.to(args.device))
 
             loss_rec = torch.mean((x.to(args.device) - y_prim)**2)
 
@@ -169,13 +173,32 @@ for epoch in range(1, args.epochs+1):
                 logging.error(f'loss_scalar: {loss_scalar} loss_rec_scalar: {loss_rec_scalar} loss_kl_scalar: {loss_kl_scalar}')
                 exit()
 
-            dict_list_append(metrics_list, f'{mode}_loss_rec', loss_rec_scalar)
-            dict_list_append(metrics_list, f'{mode}_loss_kl', loss_kl_scalar)
-            dict_list_append(metrics_list, f'{mode}_loss', loss_scalar)
-
             if mode == 'train':
                 loss.backward()
                 optimizer.step()
+                optimizer.zero_grad()
+
+            z_hist.append(z.cpu().data.numpy())
+            dict_list_append(metrics_list, f'{mode}_loss_rec', loss_rec_scalar)
+            dict_list_append(metrics_list, f'{mode}_loss_kl', loss_kl_scalar)
+            dict_list_append(metrics_list, f'{mode}_loss', loss_scalar)
+            dict_list_append(metrics_list, f'{mode}_z_mu', torch.mean(z_mu).cpu().item())
+            dict_list_append(metrics_list, f'{mode}_z_sigma', torch.mean(z_sigma).cpu().item())
+            dict_list_append(metrics_list, f'{mode}_z', torch.mean(z).cpu().item())
+
+        summary_writer.add_histogram(f'{mode}_z', np.array(z_hist), global_step=epoch)
+
+        fig = plt.figure()
+        plt.imshow(torchvision.utils.make_grid(x.cpu().detach(), normalize=True).permute(1, 2, 0))
+        summary_writer.add_figure(f'{mode}_x', fig, global_step=epoch)
+
+        fig = plt.figure()
+        plt.imshow(torchvision.utils.make_grid(x_noisy.cpu().detach(), normalize=True).permute(1, 2, 0))
+        summary_writer.add_figure(f'{mode}_x_noisy', fig, global_step=epoch)
+
+        fig = plt.figure()
+        plt.imshow(torchvision.utils.make_grid(y_prim.cpu().detach(), normalize=True).permute(1, 2, 0))
+        summary_writer.add_figure(f'{mode}_y_prim', fig, global_step=epoch)
 
     for key, value in metrics_list.items():
         value = np.mean(value)

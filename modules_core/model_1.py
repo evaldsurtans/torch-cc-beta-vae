@@ -41,6 +41,7 @@ class Model(torch.nn.Module):
                 stride=1
             ),
             torch.nn.ReLU(),
+
             torch.nn.GroupNorm(num_channels=16, num_groups=8),
             torch.nn.UpsamplingBilinear2d(scale_factor=4), # (B,16,4,4)
 
@@ -100,7 +101,7 @@ class Model(torch.nn.Module):
 
         # (B, 32, 1, 1)
         y_prim = self.decoder.forward(z.view(-1, self.args.embedding_size, 1, 1))
-        return z_mu, z_sigma, y_prim
+        return z, z_mu, z_sigma, y_prim
 
 
 
