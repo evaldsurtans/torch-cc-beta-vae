@@ -185,8 +185,6 @@ for epoch in range(1, args.epochs+1):
             dict_list_append(metrics_list, f'{mode}_z_sigma', torch.mean(z_sigma).cpu().item())
             dict_list_append(metrics_list, f'{mode}_z', torch.mean(z).cpu().item())
 
-        summary_writer.add_histogram(f'{mode}_z', np.array(z_hist), global_step=epoch)
-
         fig = plt.figure()
         plt.imshow(torchvision.utils.make_grid(x.cpu().detach(), normalize=True).permute(1, 2, 0))
         summary_writer.add_figure(f'{mode}_x', fig, global_step=epoch)
