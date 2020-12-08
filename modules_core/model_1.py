@@ -41,7 +41,6 @@ class Model(torch.nn.Module):
                 stride=1
             ),
             torch.nn.ReLU(),
-
             torch.nn.GroupNorm(num_channels=16, num_groups=8),
             torch.nn.UpsamplingBilinear2d(scale_factor=4), # (B,16,4,4)
 
@@ -95,13 +94,17 @@ class Model(torch.nn.Module):
         z_sigma = self.fc_sigma.forward(h)
         z_mu = self.fc_mu.forward(h)
 
-        # re-parameterization trick
-        eps = torch.normal(mean=0.0, std=1.0, size=z_mu.size()).to(self.args.device) # -3.0..3.0
-        z = z_mu + eps * z_sigma # (B, 32)
+        if self.args.gamma > 0:
+            z_sigma = self.encoder_sigma.forward(out_flat)
+            # re-parameterization trick
+            eps = torch.normal(mean=0.0, std=1.0, size=z_mu.size()).to(self.args.device) # -3.0..3.0
+            z = z_mu + eps * z_sigma # (B, 32)
+        else:
+            z = z_mu
 
         # (B, 32, 1, 1)
         y_prim = self.decoder.forward(z.view(-1, self.args.embedding_size, 1, 1))
-        return z, z_mu, z_sigma, y_prim
+        return z_mu, z_sigma, y_prim
 
 
 

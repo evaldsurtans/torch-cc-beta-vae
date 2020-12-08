@@ -27,7 +27,7 @@ parser.add_argument('-id', default=0, type=int)
 parser.add_argument('-sequence_name', default='sequence', type=str)
 parser.add_argument('-run_name', default='run', type=str)
 
-parser.add_argument('-model', default='model_1', type=str)
+parser.add_argument('-model', default='model_2', type=str)
 parser.add_argument('-dataset', default='dataset_1_emnist', type=str)
 
 parser.add_argument('-batch_size', default=16, type=int)
@@ -37,7 +37,7 @@ parser.add_argument('-optimizer', default='radam', type=str)
 
 parser.add_argument('-device', default='cuda', type=str)
 
-parser.add_argument('-epochs', default=20, type=int)
+parser.add_argument('-epochs', default=100, type=int)
 parser.add_argument('-debug_batch_count', default=3, type=int) # 0 = release version
 
 parser.add_argument('-embedding_size', default=32, type=int)
