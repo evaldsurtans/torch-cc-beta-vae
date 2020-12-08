@@ -63,7 +63,6 @@ class Model(torch.nn.Module):
         z_sigma = self.encoder_sigma.forward(out_flat)
 
         if self.args.gamma > 0:
-            z_sigma = self.encoder_sigma.forward(out_flat)
             # re-parameterization trick
             eps = torch.normal(mean=0.0, std=1.0, size=z_mu.size()).to(self.args.device) # -3.0..3.0
             z = z_mu + eps * z_sigma # (B, 32)

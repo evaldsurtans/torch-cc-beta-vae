@@ -42,7 +42,7 @@ parser.add_argument('-debug_batch_count', default=3, type=int) # 0 = release ver
 
 parser.add_argument('-embedding_size', default=32, type=int)
 
-parser.add_argument('-gamma', default=30.0, type=float)
+parser.add_argument('-gamma', default=0.0, type=float)
 parser.add_argument('-C_0', default=0.0, type=float)
 parser.add_argument('-C_n', default=5.0, type=float)
 parser.add_argument('-C_interval', default=10000, type=int)
