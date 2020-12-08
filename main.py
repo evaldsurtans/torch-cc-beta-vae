@@ -118,8 +118,8 @@ def dict_list_append(dict, key, value):
     dict[key].append(value)
 
 metrics_best = {
-    'test_loss': float('Inf'),
-    'test_loss_dir': -1
+    'best_test_loss': float('Inf'),
+    'best_test_loss_dir': -1
 }
 
 count_batches = 0
@@ -183,7 +183,7 @@ for epoch in range(1, args.epochs+1):
         metric_mean[key] = value
 
         for key_best in metrics_best.keys():
-            if key == key_best:
+            if f'best_{key}' == key_best:
                 direction = metrics_best[f'{key_best}_dir']
                 if metrics_best[key_best] * direction < value * direction:
                     torch.save(model.state_dict(), f'{path_artifacts}/best-{key_best}-{args.run_name}.pt')
