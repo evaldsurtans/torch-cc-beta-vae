@@ -27,7 +27,7 @@ parser.add_argument('-id', default=0, type=int)
 parser.add_argument('-sequence_name', default='sequence', type=str)
 parser.add_argument('-run_name', default='run', type=str)
 
-parser.add_argument('-model', default='model_2', type=str)
+parser.add_argument('-model', default='model_3', type=str)
 parser.add_argument('-dataset', default='dataset_1_emnist', type=str)
 
 parser.add_argument('-batch_size', default=16, type=int)
