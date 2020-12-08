@@ -84,7 +84,7 @@ class Model(torch.nn.Module):
         eps = torch.normal(mean=0.0, std=1.0, size=z_mu.size())
         z = z_mu + eps * z_sigma
 
-        return z
+        return z, z_mu, z_sigma
 
     def decode_z(self, z):
         z_2d = z.view(z.size(0), -1, 1, 1)
