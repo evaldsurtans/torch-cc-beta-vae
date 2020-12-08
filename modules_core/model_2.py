@@ -73,5 +73,22 @@ class Model(torch.nn.Module):
         y_prim = self.decoder.forward(z.view(-1, self.args.embedding_size, 1, 1))
         return z, z_mu, z_sigma, y_prim
 
+    def encode_z(self, x):
+        out = self.encoder(x)
+
+        out_flat = out.view(x.size(0), -1)
+
+        z_sigma = self.encoder_sigma.forward(out_flat)
+        z_mu = self.encoder_mu.forward(out_flat)
+
+        eps = torch.normal(mean=0.0, std=1.0, size=z_mu.size())
+        z = z_mu + eps * z_sigma
+
+        return z
+
+    def decode_z(self, z):
+        z_2d = z.view(z.size(0), -1, 1, 1)
+        y_prim = self.decoder(z_2d)
+        return y_prim
 
 

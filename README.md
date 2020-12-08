@@ -5,3 +5,6 @@ Dependencies:
 * pytorch
 * torchvision
 * tensorboardX
+
+Pre-trained model for sandbox.py:
+https://drive.google.com/file/d/1Po-x6P2EVOabLKvI9CiuIRCuHukr5PnH/view?usp=sharing

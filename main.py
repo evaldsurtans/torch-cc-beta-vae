@@ -178,6 +178,7 @@ for epoch in range(1, args.epochs+1):
                 optimizer.zero_grad()
 
             z_hist.append(z.cpu().data.numpy())
+            dict_list_append(metrics_list, f'{mode}_kl_means', torch.mean(kl_means).cpu().item())
             dict_list_append(metrics_list, f'{mode}_loss_rec', loss_rec_scalar)
             dict_list_append(metrics_list, f'{mode}_loss_kl', loss_kl_scalar)
             dict_list_append(metrics_list, f'{mode}_loss', loss_scalar)
