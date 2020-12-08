@@ -11,3 +11,9 @@ https://drive.google.com/file/d/1Po-x6P2EVOabLKvI9CiuIRCuHukr5PnH/view?usp=shari
 
 Training Process
 ![](./images/sample_1.png)
+
+Unsupervised data mining and generation
+![](./images/sample_2.png)
+
+Vector arithmetics
+![](./images/addition_2_8.png)
