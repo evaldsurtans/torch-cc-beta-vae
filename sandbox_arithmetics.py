@@ -15,6 +15,7 @@ import torch
 import numpy as np
 import matplotlib
 import torchvision
+import torchvision.utils
 import torch.utils.data
 import torch.distributions
 
@@ -55,11 +56,12 @@ for x, y_idx in data_loader:
     for i in range(BATCH_SIZE):
         plt.subplot(plt_rows, plt_rows, i + 1)
         plt.imshow(x[i][0].T, cmap=plt.get_cmap('Greys'))
+        label = data_loader.dataset.classes[y_idx[i].item()]
         plt.title(f"idx: {idx}")
         idx += 1
         plt.tight_layout(pad=0.5)
     plt.show()
-    if idx > 200:
+    if idx > 400:
         break
 
 
@@ -70,22 +72,46 @@ model.load_state_dict(torch.load('./model_2_a.pt', map_location='cpu'))
 model.eval()
 torch.set_grad_enabled(False)
 
-
-IDEXES_TO_ENCODE = [
-   9, 167, 188, 212
-]
+a = [18, 186, 83, 25] # 3
+b = [145, 60, 253, 267, 271, 232] # 6
 
 x_to_encode = []
-for idx in IDEXES_TO_ENCODE:
-    x_to_encode.append(dataset[idx][0])
+
+for IDEXES_TO_ENCODE in [a, b]:
+    for idx in IDEXES_TO_ENCODE:
+        x_to_encode.append(dataset[idx][0])
 
 plt_rows = int(np.ceil(np.sqrt(len(x_to_encode))))
 for i in range(len(x_to_encode)):
     plt.subplot(plt_rows, plt_rows, i + 1)
     x = x_to_encode[i]
     plt.imshow(x[0].T, cmap=plt.get_cmap('Greys'))
-    plt.title(f"idx: {IDEXES_TO_ENCODE[i]}")
     plt.tight_layout(pad=0.5)
 plt.show()
 
-#TODO finish
+t_x = torch.stack(x_to_encode, dim=0)
+z, z_mu, z_sigma = model.encode_z(t_x)
+
+z_a = z[:len(a)]
+z_b = z[len(a):]
+
+z_mu_a = z_mu[:len(a)]
+z_mu_b = z_mu[len(a):]
+
+z_mu = torch.mean(z_mu_a, dim=0) + torch.mean(z_mu_b, dim=0)
+#z_mu = torch.mean(torch.stack([torch.mean(z_mu_a, dim=0), torch.mean(z_mu_b, dim=0)]), dim=0)
+z_sigma = 0.4
+
+dist = torch.distributions.Normal(z_mu, z_sigma)
+z_gen = [z_mu]
+for i in range(BATCH_SIZE):
+    z_gen.append(dist.sample())
+t_z_gen = torch.stack(z_gen, dim=0)
+
+t_x_gen = model.decode_z(t_z_gen)
+
+plt.imshow(
+    torchvision.utils.make_grid(t_x_gen)[0].T,
+    cmap=plt.get_cmap('Greys')
+)
+plt.show()
