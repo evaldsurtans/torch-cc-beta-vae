@@ -1,6 +1,7 @@
 import csv
 import logging
 import math
+import time
 from  _datetime import datetime
 import os
 from collections import OrderedDict
@@ -133,6 +134,7 @@ for epoch in range(1, args.epochs+1):
 
     metric_mean = {}
     metrics_list = {}
+    timer_epoch = time.time()
     for mode, dataloader in dataloaders.items():
 
         if mode == 'train':
@@ -224,6 +226,7 @@ for epoch in range(1, args.epochs+1):
                     metrics_best[key_best] = value
                 metric_mean[key_best] = metrics_best[key_best]
 
+    metric_mean['epoch_hours'] = (time.time() - timer_epoch) / (60.0 * 60.0)
     summary_writer.add_hparams(
         hparam_dict=args.__dict__,
         metric_dict=metric_mean,
