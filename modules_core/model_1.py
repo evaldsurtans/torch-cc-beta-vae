@@ -103,7 +103,7 @@ class Model(torch.nn.Module):
 
         # (B, 32, 1, 1)
         y_prim = self.decoder.forward(z.view(-1, self.args.embedding_size, 1, 1))
-        return z_mu, z_sigma, y_prim
+        return z, z_mu, z_sigma, y_prim
 
 
 

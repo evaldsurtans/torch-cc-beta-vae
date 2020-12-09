@@ -82,7 +82,7 @@ class CsvUtils2():
                         outfile.seek(0)
                         outfile.flush()
                         rows = [','.join(it) for it in lines_all]
-                        outfile.write('\n'.join(rows))
+                        outfile.write('\n'.join(rows).strip())
                         outfile.flush()
                         os.fsync(outfile)
                         FileUtils.unlock_file(outfile)
