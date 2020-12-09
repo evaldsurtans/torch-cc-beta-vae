@@ -48,7 +48,7 @@ class CsvUtils2():
                     with open(path_csv, 'r+') as outfile:
                         FileUtils.lock_file(outfile)
                         lines_all = outfile.readlines()
-                        lines_all = [it.split(',') for it in lines_all if ',' in it]
+                        lines_all = [it.replace('\n', '').split(',') for it in lines_all if ',' in it]
                         if len(lines_all) == 0 or len(lines_all[0]) < 2:
                             headers = ['step'] + list(args_dict.keys()) + list(metrics_dict.keys())
                             headers = [str(it).replace(',', '_') for it in headers]
@@ -82,6 +82,7 @@ class CsvUtils2():
                         outfile.seek(0)
                         outfile.flush()
                         rows = [','.join(it) for it in lines_all]
+                        rows = [it for it in rows if len(it.replace('\n', '').strip()) > 0]
                         outfile.write('\n'.join(rows).strip())
                         outfile.flush()
                         os.fsync(outfile)

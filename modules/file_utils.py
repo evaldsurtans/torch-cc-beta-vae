@@ -1,7 +1,7 @@
 import json
 import os
-import platform
 import time
+import platform
 
 from modules.dict_to_obj import DictToObj
 
@@ -108,20 +108,7 @@ class FileUtils(object):
         result = None
         if os.path.exists(path):
             with open(path, 'r') as fp:
-                FileUtils.lock_file(fp)
                 result = json.load(fp)
-                FileUtils.lock_file(fp)
-        return result
-
-    @staticmethod
-    def loadJSON_Obj(path):
-        result = None
-        if os.path.exists(path):
-            with open(path, 'r') as fp:
-                FileUtils.lock_file(fp)
-                result = json.load(fp)
-                FileUtils.lock_file(fp)
-            result = DictToObj(**result)
         return result
 
     @staticmethod
