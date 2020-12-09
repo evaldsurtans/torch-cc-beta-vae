@@ -12,6 +12,7 @@ import torchvision.datasets
 from torchvision.utils import make_grid
 
 from modules import tensorboard_utils
+from modules.csv_utils_2 import CsvUtils2
 from modules.file_utils import FileUtils
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
@@ -35,6 +36,8 @@ parser.add_argument('-learning_rate', default=1e-3, type=float)
 
 parser.add_argument('-optimizer', default='radam', type=str)
 
+parser.add_argument('-loss_rec', default='mse', type=str)
+
 parser.add_argument('-device', default='cuda', type=str)
 
 parser.add_argument('-epochs', default=100, type=int)
@@ -56,6 +59,9 @@ FileUtils.createDir(path_run)
 path_artifacts = f'./artifacts/{args.sequence_name}/{args.run_name}'
 FileUtils.createDir(path_artifacts)
 FileUtils.writeJSON(f'{path_run}/args.json', args.__dict__)
+
+CsvUtils2.create_global(path_sequence)
+CsvUtils2.create_local(path_sequence, args.run_name)
 
 summary_writer = tensorboard_utils.CustomSummaryWriter(
     logdir=path_run
@@ -155,9 +161,14 @@ for epoch in range(1, args.epochs+1):
 
             z, z_mu, z_sigma, y_prim = model.forward(x_noisy.to(args.device))
 
-            loss_rec = torch.mean((x.to(args.device) - y_prim)**2)
+            if args.loss_rec == 'bce':
+                loss_rec = torch.mean(x.to(args.device)*torch.log(y_prim+1e-8))
+            else:
+                loss_rec = torch.mean((x.to(args.device) - y_prim)**2)
 
-            C = min(args.C_n, (args.C_n - args.C_0) * (count_batches / args.C_interval) + args.C_0)
+            C = 0
+            if args.C_n > args.C_0:
+                C = min(args.C_n, (args.C_n - args.C_0) * (count_batches / args.C_interval) + args.C_0)
 
             kl = z_mu**2 + z_sigma**2 - 1.0 - torch.log(z_sigma**2 + 1e-8)
             kl_means = torch.mean(kl, dim=0) # (32, )
@@ -218,6 +229,13 @@ for epoch in range(1, args.epochs+1):
         metric_dict=metric_mean,
         name=args.run_name,
         global_step=epoch
+    )
+    CsvUtils2.add_hparams(
+        path_sequence,
+        args.run_name,
+        args.__dict__,
+        metric_mean,
+        epoch
     )
     summary_writer.flush()
 summary_writer.close()
