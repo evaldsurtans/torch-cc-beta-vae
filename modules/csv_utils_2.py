@@ -48,7 +48,7 @@ class CsvUtils2():
                     with open(path_csv, 'r+') as outfile:
                         FileUtils.lock_file(outfile)
                         lines_all = outfile.readlines()
-                        lines_all = [it.split(',') for it in lines_all]
+                        lines_all = [it.split(',') for it in lines_all if ',' in it]
                         if len(lines_all) == 0 or len(lines_all[0]) < 2:
                             headers = ['step'] + list(args_dict.keys()) + list(metrics_dict.keys())
                             headers = [str(it).replace(',', '_') for it in headers]
