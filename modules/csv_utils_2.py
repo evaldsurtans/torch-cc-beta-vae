@@ -51,18 +51,18 @@ class CsvUtils2():
                         lines_all = [it.split(',') for it in lines_all]
                         if len(lines_all) == 0 or len(lines_all[0]) < 2:
                             headers = ['step'] + list(args_dict.keys()) + list(metrics_dict.keys())
-                            headers = [str(it) for it in headers]
+                            headers = [str(it).replace(',', '_') for it in headers]
                             lines_all.append(headers)
 
                         values = [global_step] + list(args_dict.values()) + list(metrics_dict.values())
-                        values = [str(it) for it in values]
+                        values = [str(it).replace(',', '_') for it in values]
                         if path_csv == path_local_csv:
                             lines_all.append(values)
                         else:
                             # global
                             existing_line_idx = -1
                             args_values = list(args_dict.values())
-                            args_values = [str(it) for it in args_values]
+                            args_values = [str(it).replace(',', '_') for it in args_values]
                             for idx_line, line in enumerate(lines_all):
                                 if len(line) > 1:
                                     is_match = True
