@@ -198,6 +198,7 @@ for epoch in range(1, args.epochs+1):
             dict_list_append(metrics_list, f'{mode}_z_mu', torch.mean(z_mu).cpu().item())
             dict_list_append(metrics_list, f'{mode}_z_sigma', torch.mean(z_sigma).cpu().item())
             dict_list_append(metrics_list, f'{mode}_z', torch.mean(z).cpu().item())
+            dict_list_append(metrics_list, f'{mode}_c', C)
 
         fig = plt.figure()
         plt.imshow(torchvision.utils.make_grid(x.cpu().detach(), normalize=True).permute(1, 2, 0))
