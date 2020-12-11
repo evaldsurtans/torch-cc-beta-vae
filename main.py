@@ -42,7 +42,7 @@ parser.add_argument('-loss_rec', default='mse', type=str)
 parser.add_argument('-device', default='cuda', type=str)
 
 parser.add_argument('-epochs', default=100, type=int)
-parser.add_argument('-debug_batch_count', default=3, type=int) # 0 = release version
+parser.add_argument('-debug_batch_count', default=0, type=int) # 0 = release version
 
 parser.add_argument('-embedding_size', default=32, type=int)
 
@@ -199,6 +199,10 @@ for epoch in range(1, args.epochs+1):
             dict_list_append(metrics_list, f'{mode}_z_sigma', torch.mean(z_sigma).cpu().item())
             dict_list_append(metrics_list, f'{mode}_z', torch.mean(z).cpu().item())
             dict_list_append(metrics_list, f'{mode}_c', C)
+
+        z_std = np.std(z_hist, axis=0).tolist()
+        z_std_sort = sorted(z_std)
+        summary_writer.add_histogram(f'{mode}_z_std', z_std_sort, global_step=epoch, bins=len(z_std_sort))
 
         fig = plt.figure()
         plt.imshow(torchvision.utils.make_grid(x.cpu().detach(), normalize=True).permute(1, 2, 0))
