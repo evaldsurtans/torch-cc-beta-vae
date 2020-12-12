@@ -200,7 +200,7 @@ for epoch in range(1, args.epochs+1):
             dict_list_append(metrics_list, f'{mode}_z', torch.mean(z).cpu().item())
             dict_list_append(metrics_list, f'{mode}_c', C)
 
-        z_std = np.std(z_hist, axis=0).tolist()
+        z_std = np.std(np.concatenate(z_hist, axis=0), axis=0).tolist()
         z_std_sort = sorted(z_std)
         summary_writer.add_histogram(f'{mode}_z_std', z_std_sort, global_step=epoch, bins=len(z_std_sort))
 
