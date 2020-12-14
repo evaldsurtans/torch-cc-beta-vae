@@ -17,6 +17,11 @@ Pre-trained models for CC-VAE code (inside Git):
 ./pretrained_models/pre_trained_model_1.zip
 ./pretrained_models/pre_trained_model_2.zip
 
+Hyper parameters:
+```
+python ./main.py -id 12 -loss_rec mse -model model_2 -debug_batch_count 0 -batch_size 32 -embedding_size 16 -learning_rate 0.001 -gamma 0.0001 -C_start 5000 -C_n 2.0 -C_interval 20000 -epochs 200
+```
+
 Pre-trained model for sandbox.py:
 https://drive.google.com/file/d/1Po-x6P2EVOabLKvI9CiuIRCuHukr5PnH/view?usp=sharing
 
