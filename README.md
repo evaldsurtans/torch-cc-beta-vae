@@ -14,8 +14,11 @@ Dependencies:
 * tensorboardX
 
 Pre-trained models for CC-VAE code (inside Git):
+
 ./pretrained_models/pre_trained_model_1.zip
+
 ./pretrained_models/pre_trained_model_2.zip
+
 
 Hyper parameters:
 ```
@@ -23,6 +26,7 @@ python ./main.py -id 12 -loss_rec mse -model model_2 -debug_batch_count 0 -batch
 ```
 
 Pre-trained model for sandbox.py:
+
 https://drive.google.com/file/d/1Po-x6P2EVOabLKvI9CiuIRCuHukr5PnH/view?usp=sharing
 
 Convergence from Z Gaussian / Normal distribution to C capacity factor enabled Z distribution
