@@ -50,6 +50,7 @@ parser.add_argument('-gamma', default=0.0, type=float)
 parser.add_argument('-C_0', default=0.0, type=float)
 parser.add_argument('-C_n', default=5.0, type=float)
 parser.add_argument('-C_interval', default=10000, type=int)
+parser.add_argument('-C_start', default=0, type=int)
 
 args, args_other = parser.parse_known_args()
 
@@ -169,8 +170,8 @@ for epoch in range(1, args.epochs+1):
                 loss_rec = torch.mean((x.to(args.device) - y_prim)**2)
 
             C = 0
-            if args.C_n > args.C_0:
-                C = min(args.C_n, (args.C_n - args.C_0) * (count_batches / args.C_interval) + args.C_0)
+            if args.C_n > args.C_0 and count_batches >= args.C_start:
+                C = min(args.C_n, (args.C_n - args.C_0) * ((count_batches - args.C_start) / args.C_interval) + args.C_0)
 
             kl = z_mu**2 + z_sigma**2 - 1.0 - torch.log(z_sigma**2 + 1e-8)
             kl_means = torch.mean(kl, dim=0) # (32, )
