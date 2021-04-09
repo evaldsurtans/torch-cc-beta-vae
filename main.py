@@ -173,7 +173,7 @@ for epoch in range(1, args.epochs+1):
             if args.C_n > args.C_0 and count_batches >= args.C_start:
                 C = min(args.C_n, (args.C_n - args.C_0) * ((count_batches - args.C_start) / args.C_interval) + args.C_0)
 
-            kl = -0.5*(2*torch.log(z_sigma**2 + 1e-8) - z_sigma**2 - z_mu**2 + 1)
+            kl = -0.5*(2*torch.log(z_sigma + 1e-8) - z_sigma - z_mu**2 + 1)
             kl_means = torch.mean(kl, dim=0) # (32, )
             loss_kl = args.gamma * torch.abs(C - torch.sum(kl_means))
 
